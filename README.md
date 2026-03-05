@@ -1,5 +1,7 @@
 **GSoC Beginner's Guide**
 
+ ![image alt](https://github.com/Manjunatha-kv01/GSoC-Google-Summer-of-Code-/blob/d2d0d54ad86f452f36f210c683678cee2d3a8e6e/Gsoc.jpeg)
+
 **Overview**
 
 This project is a fully designed HTML article that replicates a modern Medium-style blog experience while delivering a complete beginner guide to Google Summer of Code (GSoC).
