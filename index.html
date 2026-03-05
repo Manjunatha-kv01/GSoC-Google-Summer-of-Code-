@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GSoC Beginner's Complete Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --accent: #7c6af7;
+    --accent2: #f7c06a;
+    --accent3: #6af7c4;
+    --accent4: #f76a8a;
+    --text: #e8e8f0;
+    --muted: #8888aa;
+    --code: #1e1e2e;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.35;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 60px 24px;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,247,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,247,.07) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  }
+
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  .orb1 { width: 500px; height: 500px; background: rgba(124,106,247,.18); top: -100px; left: -100px; animation: drift 12s ease-in-out infinite; }
+  .orb2 { width: 400px; height: 400px; background: rgba(247,192,106,.12); bottom: -80px; right: -80px; animation: drift 15s ease-in-out infinite reverse; }
+  .orb3 { width: 300px; height: 300px; background: rgba(106,247,196,.1); top: 40%; left: 60%; animation: drift 10s ease-in-out infinite 3s; }
+
+  @keyframes drift {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(30px,-20px) scale(1.05); }
+    66% { transform: translate(-20px,30px) scale(0.95); }
+  }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(124,106,247,.15); border: 1px solid rgba(124,106,247,.4);
+    border-radius: 100px; padding: 6px 18px; font-family: 'DM Mono', monospace;
+    font-size: 12px; color: var(--accent); letter-spacing: .08em; text-transform: uppercase;
+    margin-bottom: 28px;
+    animation: fadeUp .6s ease both;
+  }
+  .badge-dot { width: 7px; height: 7px; background: var(--accent3); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.6rem, 7vw, 5.5rem);
+    font-weight: 800; line-height: 1.08;
+    animation: fadeUp .7s .1s ease both;
+    max-width: 900px;
+  }
+  .hero h1 .line1 { display: block; }
+  .hero h1 .line2 { display: block; color: var(--accent2); }
+  .hero h1 .line3 { display: block; background: linear-gradient(90deg, var(--accent), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+  .hero-sub {
+    margin-top: 24px; max-width: 560px; color: var(--muted); font-size: 1.05rem;
+    animation: fadeUp .7s .2s ease both;
+  }
+
+  .hero-stats {
+    display: flex; gap: 40px; margin-top: 48px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp .7s .3s ease both;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--accent2); }
+  .stat-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+
+  .scroll-hint {
+    position: absolute; bottom: 32px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px;
+    animation: fadeUp .7s .6s ease both;
+  }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); animation: grow 2s ease-in-out infinite; }
+  @keyframes grow { 0%{height:0;opacity:0} 50%{height:40px;opacity:1} 100%{height:40px;opacity:0} }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,.85); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 clamp(16px, 4vw, 64px);
+    display: flex; align-items: center; gap: 0; overflow-x: auto;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+    color: var(--accent); padding: 16px 0; margin-right: 32px; white-space: nowrap;
+  }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-link {
+    font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted);
+    padding: 8px 14px; border-radius: 6px; text-decoration: none; white-space: nowrap;
+    transition: all .2s; cursor: pointer;
+  }
+  .nav-link:hover { color: var(--text); background: var(--surface); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1000px; margin: 0 auto; padding: 0 clamp(16px,4vw,48px); }
+
+  /* ── SECTION ── */
+  section { padding: 80px 0; }
+  section + section { border-top: 1px solid var(--border); }
+
+  .section-tag {
+    font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .15em; color: var(--accent); margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800; line-height: 1.15; margin-bottom: 16px;
+  }
+  .section-desc { color: var(--muted); max-width: 600px; margin-bottom: 48px; }
+
+  /* ── TIMELINE STEPS ── */
+  .timeline { position: relative; padding-left: 56px; }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 19px; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(to bottom, var(--accent), var(--accent3), var(--accent2));
+  }
+
+  .step {
+    position: relative; margin-bottom: 48px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px 28px 28px 28px;
+    transition: border-color .3s, transform .3s;
+  }
+  .step:hover { border-color: var(--accent); transform: translateX(4px); }
+
+  .step-num {
+    position: absolute; left: -48px; top: 24px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg); border: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; color: var(--accent);
+  }
+
+  .step-phase {
+    font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase;
+    letter-spacing: .12em; color: var(--accent3); margin-bottom: 6px;
+  }
+  .step h3 {
+    font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;
+  }
+  .step p { color: var(--muted); font-size: .95rem; }
+  .step ul { color: var(--muted); font-size: .95rem; padding-left: 20px; margin-top: 10px; }
+  .step ul li { margin-bottom: 6px; }
+  .step ul li strong { color: var(--text); }
+
+  .step-tip {
+    margin-top: 16px; padding: 12px 16px;
+    background: rgba(124,106,247,.08); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; font-size: .88rem; color: var(--muted);
+    font-style: italic;
+  }
+  .step-tip span { color: var(--accent2); font-style: normal; font-weight: 600; }
+
+  .step-code {
+    margin-top: 14px; background: var(--code); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; font-family: 'DM Mono', monospace;
+    font-size: .82rem; color: #cdd6f4; overflow-x: auto; line-height: 1.6;
+  }
+  .step-code .cm { color: #6c7086; font-style: italic; }
+  .step-code .kw { color: #cba6f7; }
+  .step-code .st { color: #a6e3a1; }
+  .step-code .fn { color: #89b4fa; }
+
+  /* ── PHASE HEADER ── */
+  .phase-header {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 32px; margin-top: 56px;
+  }
+  .phase-header:first-of-type { margin-top: 0; }
+  .phase-pill {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: .8rem;
+    padding: 4px 16px; border-radius: 100px; text-transform: uppercase; letter-spacing: .08em;
+  }
+  .pill-blue { background: rgba(124,106,247,.2); color: var(--accent); border: 1px solid rgba(124,106,247,.3); }
+  .pill-yellow { background: rgba(247,192,106,.2); color: var(--accent2); border: 1px solid rgba(247,192,106,.3); }
+  .pill-green { background: rgba(106,247,196,.2); color: var(--accent3); border: 1px solid rgba(106,247,196,.3); }
+  .pill-red { background: rgba(247,106,138,.2); color: var(--accent4); border: 1px solid rgba(247,106,138,.3); }
+  .phase-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* ── TOOL CARDS ── */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .tool-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px;
+    transition: all .3s;
+  }
+  .tool-card:hover { border-color: var(--accent3); transform: translateY(-3px); }
+  .tool-icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .tool-card h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
+  .tool-card p { color: var(--muted); font-size: .85rem; line-height: 1.5; }
+  .tool-link { font-family: 'DM Mono', monospace; font-size: .75rem; color: var(--accent); margin-top: 8px; display: block; text-decoration: none; }
+  .tool-link:hover { color: var(--accent3); }
+
+  /* ── CALENDAR ── */
+  .calendar {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+  }
+  .cal-header {
+    background: linear-gradient(135deg, rgba(124,106,247,.3), rgba(106,247,196,.2));
+    padding: 20px 24px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .cal-row {
+    display: grid; grid-template-columns: 160px 1fr auto;
+    padding: 16px 24px; border-bottom: 1px solid var(--border);
+    align-items: start; gap: 16px;
+    transition: background .2s;
+  }
+  .cal-row:hover { background: var(--surface2); }
+  .cal-row:last-child { border-bottom: none; }
+  .cal-date { font-family: 'DM Mono', monospace; font-size: .82rem; color: var(--accent2); }
+  .cal-event { font-size: .92rem; }
+  .cal-event strong { color: var(--text); display: block; margin-bottom: 2px; }
+  .cal-event span { color: var(--muted); font-size: .82rem; }
+  .cal-badge { font-family: 'DM Mono', monospace; font-size: .7rem; padding: 3px 10px; border-radius: 100px; white-space: nowrap; }
+  .badge-important { background: rgba(247,106,138,.2); color: var(--accent4); border: 1px solid rgba(247,106,138,.3); }
+  .badge-start { background: rgba(106,247,196,.2); color: var(--accent3); border: 1px solid rgba(106,247,196,.3); }
+  .badge-end { background: rgba(247,192,106,.2); color: var(--accent2); border: 1px solid rgba(247,192,106,.3); }
+  .badge-mid { background: rgba(124,106,247,.2); color: var(--accent); border: 1px solid rgba(124,106,247,.3); }
+
+  /* ── PROPOSAL CHECKLIST ── */
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .checklist li {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px;
+    transition: border-color .2s;
+  }
+  .checklist li:hover { border-color: var(--accent3); }
+  .check-icon {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(106,247,196,.15); border: 1.5px solid var(--accent3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .85rem; margin-top: 1px;
+  }
+  .check-text strong { display: block; font-family: 'Syne', sans-serif; font-size: .95rem; margin-bottom: 3px; }
+  .check-text span { color: var(--muted); font-size: .85rem; }
+
+  /* ── MISTAKES ── */
+  .mistake-card {
+    background: var(--surface); border: 1px solid rgba(247,106,138,.25);
+    border-radius: 14px; padding: 20px 22px; margin-bottom: 12px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .mistake-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .mistake-card h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .95rem; color: var(--accent4); margin-bottom: 4px; }
+  .mistake-card p { color: var(--muted); font-size: .88rem; }
+
+  /* ── RESOURCES ── */
+  .resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .resource-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; text-align: center;
+    transition: all .3s; cursor: default;
+  }
+  .resource-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+  .resource-card .r-icon { font-size: 2rem; margin-bottom: 8px; }
+  .resource-card h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .9rem; margin-bottom: 4px; }
+  .resource-card p { color: var(--muted); font-size: .78rem; }
+
+  /* ── MINDSET ── */
+  .mindset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .mindset-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px; text-align: center;
+    transition: all .3s;
+  }
+  .mindset-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .mindset-card .m-icon { font-size: 2.4rem; margin-bottom: 12px; }
+  .mindset-card h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 8px; }
+  .mindset-card p { color: var(--muted); font-size: .85rem; line-height: 1.5; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 60px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+  footer h2 { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; margin-bottom: 12px; }
+  footer p { color: var(--muted); max-width: 480px; margin: 0 auto 28px; }
+  .cta-btn {
+    display: inline-block; background: linear-gradient(135deg, var(--accent), #a78bfa);
+    color: white; padding: 14px 36px; border-radius: 100px;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+    text-decoration: none; transition: all .3s; box-shadow: 0 8px 32px rgba(124,106,247,.3);
+  }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(124,106,247,.45); }
+  .footer-note { margin-top: 32px; font-family: 'DM Mono', monospace; font-size: .78rem; color: var(--muted); }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(124,106,247,.1), rgba(106,247,196,.05));
+    border: 1px solid rgba(124,106,247,.3); border-radius: 16px;
+    padding: 28px; margin: 32px 0;
+  }
+  .highlight-box h3 { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--accent2); margin-bottom: 10px; }
+  .highlight-box p { color: var(--muted); font-size: .92rem; }
+
+  /* ── REVEAL ANIMATION ── */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+  .revealed { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 600px) {
+    .timeline { padding-left: 40px; }
+    .step-num { left: -34px; width: 28px; height: 28px; font-size: 11px; }
+    .cal-row { grid-template-columns: 1fr; }
+    .cal-badge { display: none; }
+    .hero-stats { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+  <div class="hero-orb orb3"></div>
+
+  <div class="badge"><span class="badge-dot"></span> Complete Beginner's Roadmap</div>
+  <h1>
+    <span class="line1">Google Summer</span>
+    <span class="line2">of Code</span>
+    <span class="line3">From Zero → Contributor</span>
+  </h1>
+  <p class="hero-sub">A complete, honest, step-by-step guide to landing your first GSoC project — no experience required.</p>
+
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">~900</div><div class="stat-label">Projects Selected / Year</div></div>
+    <div class="stat"><div class="stat-num">$1500+</div><div class="stat-label">Stipend (Medium Project)</div></div>
+    <div class="stat"><div class="stat-num">200+</div><div class="stat-label">Orgs Each Year</div></div>
+    <div class="stat"><div class="stat-num">18+</div><div class="stat-label">Minimum Age</div></div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>scroll to begin</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">GSoC Guide</div>
+  <div class="nav-links">
+    <a class="nav-link" href="#what">What is GSoC</a>
+    <a class="nav-link" href="#prepare">Prepare</a>
+    <a class="nav-link" href="#steps">Steps</a>
+    <a class="nav-link" href="#timeline">Timeline</a>
+    <a class="nav-link" href="#proposal">Proposal</a>
+    <a class="nav-link" href="#mistakes">Mistakes</a>
+    <a class="nav-link" href="#tools">Tools</a>
+    <a class="nav-link" href="#resources">Resources</a>
+  </div>
+</nav>
+
+<!-- WHAT IS GSoC -->
+<section id="what">
+  <div class="container reveal">
+    <div class="section-tag">// chapter 01</div>
+    <h2 class="section-title">What Exactly is GSoC?</h2>
+    <p class="section-desc">Google Summer of Code is a global program where Google pays students and beginner contributors to work on open-source projects over the summer, mentored by experienced developers.</p>
+
+    <div class="highlight-box">
+      <h3>🎯 The Simple Idea</h3>
+      <p>You find an open-source organization (like Python, Mozilla, Apache, etc.), propose a 3-month project to them, and if selected, you get <strong style="color:var(--accent2)">paid to code</strong> while being mentored by real engineers. It's the best way to break into open source professionally.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="tool-card">
+        <div class="tool-icon">🏢</div>
+        <h4>Organizations</h4>
+        <p>200+ orgs apply each year. Google selects ~180–200. They range from Linux to Wikimedia to machine learning libraries.</p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">📋</div>
+        <h4>Projects / Ideas</h4>
+        <p>Each org publishes a list of project ideas. You pick one (or propose your own) and submit a detailed proposal.</p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">👨‍💼</div>
+        <h4>Mentors</h4>
+        <p>Each selected contributor gets 1–2 mentors — real developers from the org who guide you through the coding period.</p>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">💰</div>
+        <h4>Stipend</h4>
+        <p>Google pays you based on project size: Small (~$1,500), Medium (~$3,000), Large (~$6,000) — varies by country.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PREPARE -->
+<section id="prepare">
+  <div class="container reveal">
+    <div class="section-tag">// chapter 02</div>
+    <h2 class="section-title">What You Need Before Starting</h2>
+    <p class="section-desc">You don't need to be an expert — but you do need some fundamentals. Here's an honest checklist.</p>
+
+    <ul class="checklist">
+      <li>
+        <div class="check-icon">💻</div>
+        <div class="check-text">
+          <strong>Programming Basics (any language)</strong>
+          <span>You should be comfortable with at least one language: Python, JavaScript, C++, Java, Go, etc. You don't need to be advanced — solid beginner/intermediate skills work. GSoC has projects for all languages.</span>
+        </div>
+      </li>
+      <li>
+        <div class="check-icon">🔧</div>
+        <div class="check-text">
+          <strong>Git & GitHub Fundamentals</strong>
+          <span>Know how to clone repos, make commits, push code, and create Pull Requests. This is non-negotiable — everything in open source happens via Git. (We'll show you how to learn this below.)</span>
+        </div>
+      </li>
+      <li>
+        <div class="check-icon">📖</div>
+        <div class="check-text">
+          <strong>Ability to Read Code & Documentation</strong>
+          <span>Can you look at someone else's code and understand roughly what it does? Can you read official docs? This skill matters more than writing flashy code.</span>
+        </div>
+      </li>
+      <li>
+        <div class="check-icon">🗣️</div>
+        <div class="check-text">
+          <strong>Communication in English</strong>
+          <span>Most orgs communicate in English (GitHub issues, mailing lists, IRC/Matrix). You don't need to be fluent — just able to ask clear questions and describe problems.</span>
+        </div>
+      </li>
+      <li>
+        <div class="check-icon">⏰</div>
+        <div class="check-text">
+          <strong>Time & Patience</strong>
+          <span>GSoC is not a sprint. Plan to spend 3–6 months preparing, then 3 months executing. If you start early, you have a massive advantage over last-minute applicants.</span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- STEP BY STEP -->
+<section id="steps">
+  <div class="container reveal">
+    <div class="section-tag">// chapter 03</div>
+    <h2 class="section-title">The Complete Step-by-Step Process</h2>
+    <p class="section-desc">Follow these phases in order. Each one builds on the previous. Don't skip ahead.</p>
+
+    <!-- PHASE 1 -->
+    <div class="phase-header">
+      <div class="phase-pill pill-blue">Phase 1 — Foundation</div>
+      <div class="phase-line"></div>
+    </div>
+
+    <div class="timeline">
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-phase">Month 1–3 before applications</div>
+        <h3>🔧 Learn Git & GitHub (If You Haven't)</h3>
+        <p>Git is the tool that powers all of open source. Every contribution goes through Git. You must be comfortable with these commands:</p>
+        <div class="step-code">
+<span class="cm"># Clone a repository to your local machine</span>
+git clone https://github.com/org/repo.git
+
+<span class="cm"># See what files you changed</span>
+git status
+git diff
+
+<span class="cm"># Stage and commit your changes</span>
+git add filename.py
+git commit -m <span class="st">"fix: correct typo in README"</span>
+
+<span class="cm"># Create a new branch for your changes</span>
+git checkout -b <span class="st">feat/my-new-feature</span>
+
+<span class="cm"># Push your branch & open a Pull Request on GitHub</span>
+git push origin feat/my-new-feature
+        </div>
+        <div class="step-tip"><span>Learn from:</span> "Pro Git" book (free at git-scm.com), GitHub's own "Hello World" tutorial, or The Odin Project's Git module.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-phase">Month 1–3 before applications</div>
+        <h3>🌍 Understand How Open Source Works</h3>
+        <p>Open source has a culture and workflow. Learn how it works before you dive in:</p>
+        <ul>
+          <li><strong>Issues</strong> = bug reports and feature requests (GitHub Issues tab)</li>
+          <li><strong>Pull Requests (PRs)</strong> = your code changes, reviewed before merging</li>
+          <li><strong>Forks</strong> = your own copy of the repo where you make changes</li>
+          <li><strong>Maintainers</strong> = the people who review & merge PRs — be respectful of their time</li>
+          <li><strong>Code of Conduct</strong> = always read this before joining any community</li>
+        </ul>
+        <div class="step-tip"><span>Key mindset:</span> Open source is volunteer-driven. Be patient, polite, and thorough. A respectful newcomer gets far more help than an impatient one.</div>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div style="margin: 0 0 32px -56px; padding-left: 0;">
+        <div class="phase-header" style="margin-top: 0;">
+          <div class="phase-pill pill-yellow">Phase 2 — Find Your Org</div>
+          <div class="phase-line"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-phase">2–3 months before applications open</div>
+        <h3>🔍 Research & Pick an Organization</h3>
+        <p>This is one of the most important decisions. Don't just pick the most famous org — pick one that fits your skills AND interests.</p>
+        <ul>
+          <li><strong>Go to:</strong> summerofcode.withgoogle.com → "Organizations" tab</li>
+          <li><strong>Filter by topic:</strong> web, ML, data science, systems, mobile, etc.</li>
+          <li><strong>Check their past projects:</strong> Were they similar to what you want to build?</li>
+          <li><strong>Look at community activity:</strong> Active IRC/Slack/Matrix? Fast PR responses?</li>
+          <li><strong>Shortlist 2–3 orgs:</strong> Don't put all eggs in one basket</li>
+        </ul>
+        <div class="step-tip"><span>Hot tip:</span> Orgs that accepted students last year tend to return. Check GSoC archive (developers.google.com/open-source/gsoc/past-summers) to see which orgs have a strong track record.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-phase">2–3 months before applications</div>
+        <h3>🏗️ Set Up the Project Locally</h3>
+        <p>Once you pick an org, set up their codebase on your machine. This shows serious intent and teaches you the project structure before you write a single line of contribution code.</p>
+        <div class="step-code">
+<span class="cm"># 1. Fork the repo on GitHub (click the Fork button)</span>
+<span class="cm"># 2. Clone YOUR fork</span>
+git clone https://github.com/<span class="st">YOUR_USERNAME</span>/project.git
+cd project
+
+<span class="cm"># 3. Add the original repo as "upstream"</span>
+git remote add upstream https://github.com/org/project.git
+
+<span class="cm"># 4. Install dependencies (varies by project)</span>
+pip install -r requirements.txt    <span class="cm"># Python</span>
+npm install                        <span class="cm"># Node.js</span>
+        </div>
+        <div class="step-tip"><span>If setup fails:</span> That's okay! Document the error, search GitHub Issues, ask in their chat. Getting setup running is itself a contribution opportunity — fix the docs!</div>
+      </div>
+
+      <!-- PHASE 3 -->
+      <div style="margin: 0 0 32px -56px;">
+        <div class="phase-header" style="margin-top: 0;">
+          <div class="phase-pill pill-green">Phase 3 — Start Contributing</div>
+          <div class="phase-line"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-phase">6–8 weeks before application deadline</div>
+        <h3>🐛 Fix Your First Bug (Good First Issues)</h3>
+        <p>Every major org labels beginner-friendly issues. Find them and fix one. This is your proof of engagement.</p>
+        <ul>
+          <li><strong>Search GitHub:</strong> label:<span style="color:var(--accent3)">"good first issue"</span> or label:<span style="color:var(--accent3)">"beginner"</span></li>
+          <li><strong>Look for:</strong> typo fixes, documentation improvements, small bug fixes, adding tests</li>
+          <li><strong>Comment first:</strong> "Hi, I'd like to work on this issue. Can I be assigned?" — wait for confirmation before submitting a PR</li>
+          <li><strong>Read CONTRIBUTING.md:</strong> Every project has contribution guidelines — follow them exactly</li>
+        </ul>
+        <div class="step-tip"><span>Reality check:</span> Your first PR might take a week of back-and-forth with reviewers. That's totally normal. Don't get discouraged — this feedback is gold.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-phase">4–8 weeks before deadline</div>
+        <h3>💬 Join the Community & Talk to Mentors</h3>
+        <p>Open source orgs hang out in real-time chat. Join their community and introduce yourself professionally.</p>
+        <ul>
+          <li>Find their chat: Slack, Discord, Matrix/IRC, mailing list (check their website)</li>
+          <li>Introduce yourself: "Hi, I'm [Name], a student interested in GSoC. I'm exploring the [project area]."</li>
+          <li>Ask smart questions: Always search first. Show what you tried before asking</li>
+          <li>Help others: If you can answer someone else's question, do it — it shows initiative</li>
+          <li>Attend community meetings if they have them (often on video call)</li>
+        </ul>
+        <div class="step-tip"><span>Golden rule:</span> Never DM mentors cold asking "will you be my mentor?". Engage publicly first. Let your contributions speak.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-phase">3–5 weeks before deadline</div>
+        <h3>📌 Pick Your GSoC Project Idea</h3>
+        <p>Now that you know the codebase, choose your GSoC project idea wisely:</p>
+        <ul>
+          <li><strong>From the Ideas List:</strong> Safe bet — mentors are pre-assigned and it's pre-approved</li>
+          <li><strong>Your own idea:</strong> Higher risk but shows initiative — discuss with mentors FIRST before writing a full proposal</li>
+          <li><strong>Scope check:</strong> Is 3 months realistic? Break it into weekly deliverables and ask mentors</li>
+          <li><strong>Uniqueness:</strong> Pick something you can connect to your existing contributions — it proves you can do it</li>
+        </ul>
+        <div class="step-tip"><span>Ask mentors:</span> "I'm interested in project X. Is this still available? What prior work should I know about?" This opens a real conversation.</div>
+      </div>
+
+      <!-- PHASE 4 -->
+      <div style="margin: 0 0 32px -56px;">
+        <div class="phase-header" style="margin-top: 0;">
+          <div class="phase-pill pill-red">Phase 4 — Write the Proposal</div>
+          <div class="phase-line"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">8</div>
+        <div class="step-phase">2–4 weeks before deadline</div>
+        <h3>✍️ Write a Killer Proposal Draft</h3>
+        <p>Your proposal is the single most important document of your GSoC journey. Mentors read dozens — make yours clear, specific, and realistic. (See the Proposal section below for the full structure.)</p>
+        <ul>
+          <li>Start writing 3–4 weeks before the deadline</li>
+          <li>Share your DRAFT with the community/mentors early and ask for feedback</li>
+          <li>Revise based on mentor feedback — they want you to succeed</li>
+          <li>Be specific: vague proposals are immediately rejected</li>
+          <li>Include a realistic week-by-week timeline</li>
+        </ul>
+        <div class="step-tip"><span>Critical:</span> Submit at least 1 week early. Last-minute submissions miss mentor feedback and have technical issues. GSoC application portal closes strictly at deadline.</div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">9</div>
+        <div class="step-phase">During the coding period</div>
+        <h3>🚀 Execute, Communicate, Deliver</h3>
+        <p>If selected — congratulations! Now the real work begins. Here's how to succeed during the coding period:</p>
+        <ul>
+          <li><strong>Weekly updates:</strong> Blog post, mailing list post, or Slack message — document progress every week</li>
+          <li><strong>Communicate blockers EARLY:</strong> If stuck for more than 2 days, tell your mentor. Don't go silent</li>
+          <li><strong>Mid-term eval:</strong> Google asks mentors if you pass. Deliver working code by mid-term</li>
+          <li><strong>Final eval:</strong> Submit your final code, a summary, and documentation</li>
+          <li><strong>Get your code merged:</strong> Ideally your PR is merged before the program ends</li>
+        </ul>
+        <div class="step-tip"><span>Success formula:</span> Communicate proactively + deliver incrementally + ask for help early = passing both evaluations.</div>
+      </div>
+
+    </div><!-- end timeline -->
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline">
+  <div class="container reveal">
+    <div class="section-tag">// chapter 04</div>
+    <h2 class="section-title">GSoC 2025 Key Dates</h2>
+    <p class="section-desc">These are the typical GSoC annual milestones. Always verify exact dates at summerofcode.withgoogle.com.</p>
+
+    <div class="calendar">
+      <div class="cal-header">📅 GSoC Annual Timeline (Typical Dates)</div>
+      <div class="cal-row">
+        <div class="cal-date">Jan – Feb</div>
+        <div class="cal-event"><strong>Organizations Apply to GSoC</strong><span>Google announces the program. Orgs submit applications to participate.</span></div>
+        <div class="cal-badge badge-mid">Prep Now</div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-date">Late Feb</div>
+        <div class="cal-event"><strong>Accepted Orgs Announced</strong><span>Google publishes the list of participating organizations. Study ideas lists!</span></div>
+        <div class="cal-badge badge-important">Key Date</div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-date">Mar – Apr</div>
+        <div class="cal-event"><strong>Contributor Application Period</strong><span>~3 weeks to submit your proposal. Engage with orgs, make contributions, finalize proposal.</span></div>
+        <div class="cal-badge badge-important">Apply!</div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-date">Early May</div>
+        <div class="cal-event"><strong>Results Announced</strong><span>Google notifies selected contributors. Accept your slot immediately.</span></div>
+        <div class="cal-badge badge-start">Results</div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-date">May – June</div>
+        <div class="cal-event"><strong>Community Bonding Period</strong><span>Get to know your mentor, understand the codebase deeply, finalize your plan. Don't wait to start learning!</span></div>
+        <div class="cal-badge badge-mid">Bonding</div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-date">June – Aug</div>
+        <div class="cal-event"><strong>Coding Period Begins</strong><span>12 weeks of coding. Weekly check-ins with mentors. Mid-term evaluation around week 6.</span></div>
+        <div class="cal-badge badge-start">Code!</div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-date">Late Aug</div>
+        <div class="cal-event"><strong>Final Submissions & Evaluations</strong><span>Submit your final work product. Mentors evaluate. Google pays stipend.</span></div>
+        <div class="cal-badge badge-end">Finish</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROPOSAL -->
+<section id="proposal">
+  <div class="container reveal">
+    <div class="section-tag">// chapter 05</div>
+    <h2 class="section-title">Anatomy of a Winning Proposal</h2>
+    <p class="section-desc">A great proposal is specific, honest, and shows you already understand the project. Here's what to include:</p>
+
+    <ul class="checklist">
+      <li>
+        <div class="check-icon">👤</div>
+        <div class="check-text">
+          <strong>About Me</strong>
+          <span>Brief background: your skills, relevant experience, GitHub profile link, your timezone and availability. Keep it to 2–3 paragraphs. Be honest about experience level.</span>
+        </div>
+      </li>
+      <li>
+        <div class="check-icon">🔍</div>
+        <div class="check-text">
+          <strong>Problem Statement</strong>
+          <span>Clearly describe the problem your project solves. Reference existing GitHub issues or discussions. Show you understand WHY this needs to be done, not just WHAT.</span>
+        </div>
+      </li>
+      <li>
+        <div class="check-icon">🏗️</div>
+        <div class="check-text">
+          <strong>Technical Approach</strong>
+          <span>Describe HOW you'll solve it. Mention specific files, APIs, libraries, and algorithms you'll use or modify. Include diagrams if helpful. This section separates strong proposals from weak ones.</span>
+        </div>
+      </li>
+      <li>
+        <div class="check-icon">📅</div>
+        <div class="check-text">
+          <strong>Week-by-Week Timeline</strong>
+          <span>Break the 12 coding weeks into deliverables. Be realistic — include buffer time. List what will be done by mid-term evaluation (Week 6) and final evaluation (Week 12).</span>
+        </div>
+      </li>
+      <li>
+        <div class="check-icon">🎯</div>
+        <div class="check-text">
+          <strong>Why This Org, Why You</strong>
+          <span>Link to your merged PRs or contributions to this org. Why are you the right person? What unique insight or passion do you bring? Be specific, not generic.</span>
+        </div>
+      </li>
+      <li>
+        <div class="check-icon">⚠️</div>
+        <div class="check-text">
+          <strong>Risks & Contingencies</strong>
+          <span>What could go wrong? How will you handle it? Example: "If the API change takes longer than expected, I'll prioritize X and defer Y to post-GSoC." This shows maturity and planning.</span>
+        </div>
+      </li>
+      <li>
+        <div class="check-icon">📝</div>
+        <div class="check-text">
+          <strong>Post-GSoC Plans</strong>
+          <span>Will you continue contributing after the program? Mentors love candidates who plan to stick around. Open source is a long game.</span>
+        </div>
+      </li>
+    </ul>
+
+    <div class="highlight-box" style="margin-top: 32px;">
+      <h3>⚡ Proposal Review Checklist</h3>
+      <p>Before submitting: Have you shared it with the mentor for feedback? Is every deliverable specific (not vague)? Is your timeline realistic (not too aggressive)? Have you proofread for English errors? Did you include links to your contributions to this org?</p>
+    </div>
+  </div>
+</section>
+
+<!-- MISTAKES -->
+<section id="mistakes">
+  <div class="container reveal">
+    <div class="section-tag">// chapter 06</div>
+    <h2 class="section-title">Common Mistakes That Get You Rejected</h2>
+    <p class="section-desc">Learn from these before you make them. These are the actual reasons proposals fail.</p>
+
+    <div class="mistake-card">
+      <div class="mistake-icon">🕐</div>
+      <div>
+        <h4>Starting Too Late</h4>
+        <p>Starting to contribute 1 week before the application deadline is too late. Mentors can see your contribution history. Start 2–3 months early minimum.</p>
+      </div>
+    </div>
+
+    <div class="mistake-card">
+      <div class="mistake-icon">📋</div>
+      <div>
+        <h4>Copy-Pasting the Ideas List as Your Proposal</h4>
+        <p>The ideas page is a starting point, not your proposal. Your proposal must show your own technical thinking and approach — not just restate what the org already wrote.</p>
+      </div>
+    </div>
+
+    <div class="mistake-card">
+      <div class="mistake-icon">💌</div>
+      <div>
+        <h4>Cold-Messaging Mentors Without Context</h4>
+        <p>"Hi, will you be my mentor?" with no prior contributions or context is an instant red flag. Engage in public channels first. Let your PRs introduce you.</p>
+      </div>
+    </div>
+
+    <div class="mistake-card">
+      <div class="mistake-icon">📉</div>
+      <div>
+        <h4>Vague or Unrealistic Timeline</h4>
+        <p>"Week 1–4: Implement the feature" is not a timeline. Break it into specific, measurable weekly tasks. Over-promising and under-delivering is worse than a conservative plan.</p>
+      </div>
+    </div>
+
+    <div class="mistake-card">
+      <div class="mistake-icon">🔒</div>
+      <div>
+        <h4>Applying to 10 Orgs Without Depth</h4>
+        <p>Spreading thin across many orgs with no real contributions to any of them rarely works. 2–3 orgs with genuine engagement is far more effective than 10 with none.</p>
+      </div>
+    </div>
+
+    <div class="mistake-card">
+      <div class="mistake-icon">📵</div>
+      <div>
+        <h4>Going Silent During the Program</h4>
+        <p>The #1 reason for failing evaluations: not communicating. If stuck, tell your mentor. Send weekly updates even if "I didn't make much progress this week because of X." Silence is alarming.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="container reveal">
+    <div class="section-tag">// chapter 07</div>
+    <h2 class="section-title">Essential Tools & Setup</h2>
+    <p class="section-desc">These are the tools every GSoC contributor uses. Get comfortable with them now.</p>
+
+    <div class="grid-2">
+      <div class="tool-card">
+        <div class="tool-icon">🐙</div>
+        <h4>GitHub / GitLab</h4>
+        <p>Your code lives here. Create a strong profile: good README, contribution graph, pinned repos. This is your developer resume.</p>
+        <a class="tool-link" href="#">github.com</a>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">🖥️</div>
+        <h4>VS Code / IDE</h4>
+        <p>Use VS Code with extensions: GitLens, Pylance, ESLint, Prettier. A good editor setup speeds up contribution significantly.</p>
+        <a class="tool-link" href="#">code.visualstudio.com</a>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">🐍</div>
+        <h4>Python / Node.js</h4>
+        <p>Most GSoC projects use Python, JS, or C++. Have at least Python 3.10+ and Node.js 18+ installed. Use virtual environments.</p>
+        <a class="tool-link" href="#">python.org / nodejs.org</a>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">🐧</div>
+        <h4>Linux / WSL</h4>
+        <p>Most open source development happens on Linux. Use WSL on Windows, or Ubuntu/Debian natively. macOS also works well.</p>
+        <a class="tool-link" href="#">ubuntu.com/wsl</a>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">💬</div>
+        <h4>Discord / Matrix / IRC</h4>
+        <p>Community communication happens here. Install Element (Matrix), Slack, or Discord depending on your org. Check their website.</p>
+        <a class="tool-link" href="#">element.io / slack.com</a>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">📝</div>
+        <h4>Google Docs / Notion</h4>
+        <p>Write your proposal in Google Docs first. Share the link with mentors for collaborative feedback before pasting into the GSoC portal.</p>
+        <a class="tool-link" href="#">docs.google.com</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section id="resources">
+  <div class="container reveal">
+    <div class="section-tag">// chapter 08</div>
+    <h2 class="section-title">Best Learning Resources</h2>
+    <p class="section-desc">These are the most trusted resources used by successful GSoC contributors.</p>
+
+    <div class="resource-grid">
+      <div class="resource-card">
+        <div class="r-icon">🌐</div>
+        <h4>Official GSoC Site</h4>
+        <p>summerofcode.withgoogle.com — start here. Read the FAQ, program guide, and past projects.</p>
+      </div>
+      <div class="resource-card">
+        <div class="r-icon">📗</div>
+        <h4>Pro Git Book</h4>
+        <p>Free at git-scm.com/book — the definitive guide to Git. Read chapters 1–3 minimum.</p>
+      </div>
+      <div class="resource-card">
+        <div class="r-icon">🎓</div>
+        <h4>The Odin Project</h4>
+        <p>Free full-stack web dev curriculum. Excellent Git & GitHub modules for beginners.</p>
+      </div>
+      <div class="resource-card">
+        <div class="r-icon">🤝</div>
+        <h4>First Contributions</h4>
+        <p>firstcontributions.github.io — practice making your very first GitHub PR in a safe sandbox.</p>
+      </div>
+      <div class="resource-card">
+        <div class="r-icon">📺</div>
+        <h4>GSoC YouTube</h4>
+        <p>Search "Google Summer of Code student experience" for video walkthroughs from past participants.</p>
+      </div>
+      <div class="resource-card">
+        <div class="r-icon">🗃️</div>
+        <h4>GSoC Archive</h4>
+        <p>developers.google.com/open-source/gsoc/past-summers — read winning proposals from past years.</p>
+      </div>
+      <div class="resource-card">
+        <div class="r-icon">🔎</div>
+        <h4>Good First Issues</h4>
+        <p>goodfirstissue.dev — curated list of beginner-friendly issues across hundreds of projects.</p>
+      </div>
+      <div class="resource-card">
+        <div class="r-icon">💻</div>
+        <h4>freeCodeCamp</h4>
+        <p>Free coding curriculum. Great for strengthening JavaScript, Python, and algorithms if needed.</p>
+      </div>
+    </div>
+
+    <!-- MINDSET -->
+    <h3 class="section-title" style="margin-top: 64px; font-size: 1.6rem;">🧠 The Beginner Mindset That Gets You Selected</h3>
+    <div class="mindset-grid" style="margin-top: 24px;">
+      <div class="mindset-card">
+        <div class="m-icon">🌱</div>
+        <h4>Start Small, Stay Consistent</h4>
+        <p>One small PR per week beats one massive PR before the deadline. Consistency signals reliability to mentors.</p>
+      </div>
+      <div class="mindset-card">
+        <div class="m-icon">🙋</div>
+        <h4>Ask, Don't Assume</h4>
+        <p>If unsure what to work on, ask. Mentors prefer questions over guessing wrong. "Can I work on issue #123?" is always fine.</p>
+      </div>
+      <div class="mindset-card">
+        <div class="m-icon">📖</div>
+        <h4>Read Before You Ask</h4>
+        <p>Search issues, check docs, and Google the error before asking. Showing you tried first gets much better responses.</p>
+      </div>
+      <div class="mindset-card">
+        <div class="m-icon">🔁</div>
+        <h4>Embrace Review Cycles</h4>
+        <p>Your PR will likely need 3–5 rounds of review. That's normal. Feedback is free education from senior engineers.</p>
+      </div>
+      <div class="mindset-card">
+        <div class="m-icon">💪</div>
+        <h4>Rejection ≠ Failure</h4>
+        <p>Most successful GSoC contributors applied 2–3 times before being selected. Each attempt makes you a better contributor.</p>
+      </div>
+      <div class="mindset-card">
+        <div class="m-icon">🌟</div>
+        <h4>GSoC is the Beginning</h4>
+        <p>The real reward isn't the stipend — it's the open source skills, network, and real-world experience that lasts forever.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <h2>You're Ready to Begin 🚀</h2>
+  <p>The best time to start preparing for GSoC was yesterday. The second best time is right now. Go set up Git, explore some repos, and fix your first issue today.</p>
+  <a class="cta-btn" href="https://summerofcode.withgoogle.com" target="_blank">Go to GSoC Official Site →</a>
+  <p class="footer-note">Built for beginners, by someone who has seen the journey. Good luck — you've got this. 💜</p>
+</footer>
+
+<script>
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('revealed'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Active nav on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.style.color = '');
+        const active = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+        if (active) active.style.color = 'var(--accent2)';
+      }
+    });
+  }, { rootMargin: '-40% 0px -40% 0px' });
+  sections.forEach(s => sectionObserver.observe(s));
+</script>
+</body>
+</html>
